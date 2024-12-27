@@ -80,10 +80,10 @@ print(f'Features extracted: {x_train.shape[1]}')
 
 model_basic = MLPClassifier(hidden_layer_sizes=(150,100,100,), activation="relu",
                             solver="adam", alpha=0.0001,
-                            batch_size=250, learning_rate="constant",
-                            learning_rate_init=0.001, max_iter=300,
+                            batch_size=300, learning_rate="constant",
+                            learning_rate_init=0.001, max_iter=250,
                             shuffle=True, random_state=42,
-                            tol=1e-5, verbose=True,
+                            tol=1e-4, verbose=True,
                             momentum=0.9, nesterovs_momentum=True,
                             beta_1=0.9, beta_2=0.999,
                             epsilon=1e-08, n_iter_no_change=50,
