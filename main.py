@@ -22,12 +22,12 @@ sns.set_theme(style='white', palette = None)
 color_pal = plt.rcParams['axes.prop_cycle'].by_key()["color"]
 
 audio_files = glob.glob('CREMA-D/AudioWAV/*.wav')
-emotions = {"ANG" :0,
-            "DIS":1,
-            "FEA":2,
-            "HAP":3,
-            "NEU":4,
-            "SAD":5}
+emotions = {"ANG": "anger",
+            "DIS": "disgust",
+            "FEA": "fear",
+            "HAP": "happy",
+            "NEU": "neutral",
+            "SAD": "sad"}
 
 emotions_level = {"XX":0,
                   "LO": 1,
@@ -71,17 +71,48 @@ def LoadData(test_size =0.2):
 
     return train_test_split(np.array(x), y, test_size= test_size, random_state = 9)
 
-x_train, x_test, y_train, y_test = LoadData()
+# x_train, x_test, y_train, y_test = LoadData()
 
+# Lts do data normalization
+# mean = np.mean(x_train, axis=0)
+# std = np.std(x_train, axis=0)
+#
+# x_train = (x_train - mean)/std
+# x_test = (x_test - mean)/std
+# np.save("x_train",x_train)
+# np.save("y_train",y_train)
+# np.save("x_test",x_test)
+# np.save("y_test",y_test)
+
+def loadFromBinary(x_train, y_train, x_test, y_test):
+    return np.load(x_train), np.load(x_test), np.load(y_train), np.load(y_test)
+
+x_train, x_test, y_train, y_test = loadFromBinary("x_train.npy", "y_train.npy",
+                                                  "x_test.npy", "y_test.npy")
+
+print(x_train)
 
 #Shape of train and test set and Number of features extracted
 print((x_train.shape[0], x_test.shape[0]))
 print(f'Features extracted: {x_train.shape[1]}')
 
+
 model_basic = MLPClassifier(hidden_layer_sizes=(150,100,100,), activation="relu",
                             solver="adam", alpha=0.0001,
                             batch_size=300, learning_rate="constant",
                             learning_rate_init=0.001, max_iter=250,
+                            shuffle=True, random_state=42,
+                            tol=1e-4, verbose=True,
+                            momentum=0.9, nesterovs_momentum=True,
+                            beta_1=0.9, beta_2=0.999,
+                            epsilon=1e-08, n_iter_no_change=50,
+                            )
+
+
+model_test = MLPClassifier(hidden_layer_sizes=(50,), activation="relu",
+                            solver="adam", alpha=0.0001,
+                            batch_size=350, learning_rate="constant",
+                            learning_rate_init=0.001, max_iter=1000,
                             shuffle=True, random_state=42,
                             tol=1e-4, verbose=True,
                             momentum=0.9, nesterovs_momentum=True,
