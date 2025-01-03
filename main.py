@@ -152,7 +152,6 @@ while epoch < n_epoch:
 
     epoch += 1
 
-""" Plot """
 
 plt.plot(scores_train, color='green', alpha=0.8, label='Train')
 plt.plot(scores_test, color='magenta', alpha=0.8, label='Test')
@@ -160,7 +159,6 @@ plt.title(f"Accuracy over epochs (Test (200,200,200) neurons, batch 100)", fonts
 plt.xlabel('Epochs')
 plt.legend(loc='upper left')
 plt.show()
-
 
 #--------------------------------------------------------
 
