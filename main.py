@@ -102,16 +102,16 @@ model_basic = MLPClassifier(hidden_layer_sizes=(150,100,100,), activation="relu"
                             batch_size=300, learning_rate="constant",
                             learning_rate_init=0.001, max_iter=250,
                             shuffle=True, random_state=42,
-                            tol=1e-4, verbose=True,
+                            tol=1e-4, verbose=True, early_stopping= False,
                             momentum=0.9, nesterovs_momentum=True,
                             beta_1=0.9, beta_2=0.999,
                             epsilon=1e-08, n_iter_no_change=50,
                             )
 
 
-model_test = MLPClassifier(hidden_layer_sizes=(50,), activation="relu",
+model_test = MLPClassifier(hidden_layer_sizes=(200,200,200,), activation="relu",
                             solver="adam", alpha=0.0001,
-                            batch_size=350, learning_rate="constant",
+                            batch_size=100, learning_rate="constant",
                             learning_rate_init=0.001, max_iter=1000,
                             shuffle=True, random_state=42,
                             tol=1e-4, verbose=True,
@@ -119,14 +119,64 @@ model_test = MLPClassifier(hidden_layer_sizes=(50,), activation="relu",
                             beta_1=0.9, beta_2=0.999,
                             epsilon=1e-08, n_iter_no_change=50,
                             )
+model = model_test
+
+#-------------------------------------------------------
 
 
-model_basic.fit(x_train, y_train)
+scores_train = []
+scores_test = []
+n_epoch = 100
+mini_batch_size = model.batch_size
+# EPOCH
+epoch = 0
+while epoch < n_epoch:
+    print('epoch: ', epoch)
+    # SHUFFLING
+    random_perm = np.random.permutation(x_train.shape[0])
+    mini_batch_index = 0
+    while True:
+        # MINI-BATCH
+        indices = random_perm[mini_batch_index:mini_batch_index + mini_batch_size]
+        model.partial_fit(x_train[indices], y_train[indices], classes=np.unique(y_train))
+        mini_batch_index += mini_batch_size
 
-# Predict for the test set
-y_pred = model_basic.predict(x_test)
+        if mini_batch_index >= x_train.shape[0]:
+            break
 
-# Calculate Accuracy
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy: {:.2f}%".format(accuracy * 100))
+    # SCORE TRAIN
+    scores_train.append(model.score(x_train, y_train))
 
+    # SCORE TEST
+    scores_test.append(model.score(x_test, y_test))
+
+    epoch += 1
+
+""" Plot """
+
+plt.plot(scores_train, color='green', alpha=0.8, label='Train')
+plt.plot(scores_test, color='magenta', alpha=0.8, label='Test')
+plt.title(f"Accuracy over epochs (Test (200,200,200) neurons, batch 100)", fontsize=14)
+plt.xlabel('Epochs')
+plt.legend(loc='upper left')
+plt.show()
+
+
+#--------------------------------------------------------
+
+# model.fit(x_train, y_train)
+#
+# # Predict for the test set
+# y_pred = model.predict(x_test)
+#
+# # Calculate Accuracy
+# accuracy = accuracy_score(y_test, y_pred)
+# print("Accuracy: {:.2f}%".format(accuracy * 100))
+
+plt.plot(model.loss_curve_)
+if model.early_stopping:
+    plt.plot(model.validation_scores_)
+plt.title("Loss over mini epochs (Test (200,200,200) neurons, batch 100)", fontsize=14)
+plt.xlabel('Mini Epochs')
+plt.legend(loc='upper right')
+plt.show()
